@@ -16,11 +16,7 @@
 
 package com.liferay.blade.cli;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.MissingCommandException;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
+import com.beust.jcommander.*;
 
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.BaseCommand;
@@ -56,22 +52,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Formatter;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Scanner;
-import java.util.ServiceLoader;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -779,7 +760,9 @@ public class BladeCLI {
 
 		builder.defaultProvider(new BladeCLIDefaultProvider(args));
 
-		return builder.build();
+		JCommander build = builder.build();
+		build.setParameterDescriptionComparator(_parameterDescriptionComparator);
+		return build;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1481,6 +1464,7 @@ public class BladeCLI {
 		}
 	}
 
+
 	private static final String _BLADE_PROPERTIES = ".blade.properties";
 
 	private static final String _LAST_UPDATE_CHECK_KEY = "lastUpdateCheck";
@@ -1505,5 +1489,27 @@ public class BladeCLI {
 	private JCommander _jCommander;
 	private PrintStream _out;
 	private Collection<WorkspaceProvider> _workspaceProviders = null;
+	private Comparator<? super ParameterDescription> _parameterDescriptionComparator
+			= new Comparator<ParameterDescription>() {
+		@Override
+		public int compare(ParameterDescription p0, ParameterDescription p1) {
+			Parameter a0 = p0.getParameterAnnotation();
+			Parameter a1 = p1.getParameterAnnotation();
+			String n0 = Arrays.stream(p0.getParameter().names()).filter(s -> s.startsWith("--")).findFirst().orElse("");
+			String n1 = Arrays.stream(p1.getParameter().names()).filter(s -> s.startsWith("--")).findFirst().orElse("");
+
+			if (a0 != null && a0.order() != -1 && a1 != null && a1.order() != -1) {
+				return Integer.compare(a0.order(), a1.order());
+			} else if (a0 != null && a0.order() != -1) {
+				return -1;
+			} else if (a1 != null && a1.order() != -1) {
+				return 1;
+			} else if(!n0.isEmpty() || !n1.isEmpty()){
+				return n0.compareTo(n1);
+			}else {
+				return p0.getLongestName().compareTo(p1.getLongestName());
+			}
+		}
+	};
 
 }
