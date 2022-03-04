@@ -184,6 +184,12 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 			return;
 		}
 
+		if (profileName.equals("maven") && template.contains("-ext")) {
+			getBladeCLI().error("EXT project is not supported for Maven");
+
+			return;
+		}
+
 		String templateValidateStrig = _checkTemplateVersionRange(templateFile, projectTemplatesArgs);
 
 		if (!StringUtil.isNullOrEmpty(templateValidateStrig)) {
