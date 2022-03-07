@@ -63,6 +63,14 @@ public class CreateCommandMaven extends CreateCommand {
 		if ((workspaceProvider == null) || (workspaceProvider instanceof MavenWorkspaceProvider)) {
 			createArgs.setProfileName("maven");
 
+			String template = createArgs.getTemplate();
+
+			if (template.contains("-ext")) {
+				bladeCLI.error("EXT project is not supported for Maven");
+
+				return;
+			}
+
 			super.execute();
 		}
 		else {
