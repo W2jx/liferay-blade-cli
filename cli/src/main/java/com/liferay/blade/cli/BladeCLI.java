@@ -784,7 +784,60 @@ public class BladeCLI {
 
 		JCommander build = builder.build();
 
-		build.setParameterDescriptionComparator(_parameterDescriptionComparator);
+		build.setParameterDescriptionComparator(
+			new Comparator<ParameterDescription>() {
+
+				@Override
+				public int compare(
+					ParameterDescription parameterDescription0, ParameterDescription parameterDescription1) {
+
+					Parameter parameterAnnotation0 = parameterDescription0.getParameterAnnotation();
+					Parameter parameterAnnotation1 = parameterDescription1.getParameterAnnotation();
+
+					WrappedParameter wrappedParameter0 = parameterDescription0.getParameter();
+					WrappedParameter wrappedParameter1 = parameterDescription1.getParameter();
+
+					String name0 = Arrays.stream(
+						wrappedParameter0.names()
+					).filter(
+						name -> name.startsWith("--")
+					).findFirst(
+					).orElse(
+						""
+					);
+
+					String name1 = Arrays.stream(
+						wrappedParameter1.names()
+					).filter(
+						name -> name.startsWith("--")
+					).findFirst(
+					).orElse(
+						""
+					);
+
+					if ((parameterAnnotation0 != null) && (parameterAnnotation0.order() != -1) &&
+						(parameterAnnotation1 != null) && (parameterAnnotation1.order() != -1)) {
+
+						return Integer.compare(parameterAnnotation0.order(), parameterAnnotation1.order());
+					}
+					else if ((parameterAnnotation0 != null) && (parameterAnnotation0.order() != -1)) {
+						return -1;
+					}
+					else if ((parameterAnnotation1 != null) && (parameterAnnotation1.order() != -1)) {
+						return 1;
+					}
+					else if (!name0.isEmpty() || !name1.isEmpty()) {
+						return name0.compareTo(name1);
+					}
+					else {
+						String longestName0 = parameterDescription0.getLongestName();
+						String longestName1 = parameterDescription1.getLongestName();
+
+						return longestName0.compareTo(longestName1);
+					}
+				}
+
+			});
 
 		return build;
 	}
@@ -1511,57 +1564,6 @@ public class BladeCLI {
 	private final InputStream _in;
 	private JCommander _jCommander;
 	private PrintStream _out;
-
-	private Comparator<? super ParameterDescription> _parameterDescriptionComparator =
-		new Comparator<ParameterDescription>() {
-
-			@Override
-			public int compare(ParameterDescription p0, ParameterDescription p1) {
-				Parameter a0 = p0.getParameterAnnotation();
-				Parameter a1 = p1.getParameterAnnotation();
-
-				WrappedParameter w0 = p0.getParameter();
-				WrappedParameter w1 = p1.getParameter();
-
-				String n0 = Arrays.stream(
-					w0.names()
-				).filter(
-					s -> s.startsWith("--")
-				).findFirst(
-				).orElse(
-					""
-				);
-				String n1 = Arrays.stream(
-					w1.names()
-				).filter(
-					s -> s.startsWith("--")
-				).findFirst(
-				).orElse(
-					""
-				);
-
-				if ((a0 != null) && (a0.order() != -1) && (a1 != null) && (a1.order() != -1)) {
-					return Integer.compare(a0.order(), a1.order());
-				}
-				else if ((a0 != null) && (a0.order() != -1)) {
-					return -1;
-				}
-				else if ((a1 != null) && (a1.order() != -1)) {
-					return 1;
-				}
-				else if (!n0.isEmpty() || !n1.isEmpty()) {
-					return n0.compareTo(n1);
-				}
-				else {
-					String longestName0 = p0.getLongestName();
-					String longestName1 = p1.getLongestName();
-
-					return longestName0.compareTo(longestName1);
-				}
-			}
-
-		};
-
 	private Collection<WorkspaceProvider> _workspaceProviders = null;
 
 }
