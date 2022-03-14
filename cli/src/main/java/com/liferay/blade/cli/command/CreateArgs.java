@@ -271,7 +271,7 @@ public class CreateArgs extends BaseArgs {
 
 	@Parameter(
 		description = "The project template to use when creating the project. To see the list of templates available use blade create <-l|--list-templates>",
-		names = {"--template", "-t"}, required = true, validateValueWith = TemplateNameValidator.class
+		names = {"-t", "--template"}, required = true, validateValueWith = TemplateNameValidator.class
 	)
 	@ParameterPossibleValues(more = TemplateNameValidator.class, value = TemplateNameValidator.class)
 	private String _template;

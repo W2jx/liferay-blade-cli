@@ -797,22 +797,31 @@ public class BladeCLI {
 					WrappedParameter wrappedParameter0 = parameterDescription0.getParameter();
 					WrappedParameter wrappedParameter1 = parameterDescription1.getParameter();
 
+					String[] names0 = wrappedParameter0.names();
+					String[] names1 = wrappedParameter1.names();
+
 					String name0 = Arrays.stream(
-						wrappedParameter0.names()
+						names0
 					).filter(
-						name -> name.startsWith("--")
+						name -> name.startsWith("-") && !name.startsWith("--")
 					).findFirst(
 					).orElse(
-						""
+						(names0.length > 0) ? names0[0] : ""
+					).toLowerCase(
+					).replace(
+						"-", ""
 					);
 
 					String name1 = Arrays.stream(
-						wrappedParameter1.names()
+						names1
 					).filter(
-						name -> name.startsWith("--")
+						name -> name.startsWith("-") && !name.startsWith("--")
 					).findFirst(
 					).orElse(
-						""
+						(names1.length > 0) ? names1[0] : ""
+					).toLowerCase(
+					).replace(
+						"-", ""
 					);
 
 					if ((parameterAnnotation0 != null) && (parameterAnnotation0.order() != -1) &&
