@@ -66,7 +66,7 @@ public class CreateCommandMaven extends CreateCommand {
 			String template = createArgs.getTemplate();
 
 			if (template.contains("-ext")) {
-				bladeCLI.error("EXT project is not supported for Maven");
+				bladeCLI.error("Cannot create " + template + " project in Liferay Maven Workpspace.");
 
 				return;
 			}
